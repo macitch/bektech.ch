@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export const runtime = "nodejs";
 
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { name, email, message, } = payload;
+  const { name, email, message } = payload;
 
   if (!name || !email || !message) {
     return NextResponse.json(
@@ -38,37 +38,23 @@ export async function POST(request: Request) {
     );
   }
 
-  const host = process.env.SMTP_HOST;
-  const port = Number(process.env.SMTP_PORT ?? "465");
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_TO ?? "info@bektech.ch";
 
-  if (!host || !user || !pass) {
+  if (!apiKey) {
     return NextResponse.json(
       { error: "Email service not configured." },
       { status: 500 }
     );
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure: port === 465,
-    auth: {
-      user,
-      pass,
-    },
-    connectionTimeout: 10_000,
-    greetingTimeout: 10_000,
-    socketTimeout: 10_000,
-  });
+  const resend = new Resend(apiKey);
 
   try {
-    await transporter.sendMail({
-      from: `"Bektech Website" <${user}>`,
+    await resend.emails.send({
+      from: "Bektech Website <info@bektech.ch>",
       to,
-      replyTo: email,
+      reply_to: email,
       subject: `Nouveau message - ${name}`,
       text: `Nom: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
     });
