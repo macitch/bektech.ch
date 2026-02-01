@@ -1,3 +1,4 @@
+import "dotenv/config";
 import fs from "node:fs/promises";
 
 const key = process.env.GOOGLE_MAPS_API_KEY;
@@ -37,7 +38,7 @@ const out = {
   user_ratings_total: data?.userRatingCount ?? 0,
   url: data?.googleMapsUri ?? "",
   reviews: (Array.isArray(data?.reviews) ? data.reviews : [])
-    .slice(0, 8)
+    .slice(0, 10)
     .map((r) => ({
       author_name: r?.authorAttribution?.displayName ?? "Client",
       rating: r?.rating ?? 0,

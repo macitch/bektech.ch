@@ -1,6 +1,4 @@
 "use client";
-
-import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type GoogleReview = {
@@ -187,15 +185,14 @@ export default function Testimonials() {
               <article key={`${testimonial.name}-${testimonial.role}`} className="min-w-full px-2">
                 <div className="rounded-3xl border border-black/10 bg-white px-8 py-10 sm:px-12">
                   <div className="flex items-center gap-5">
-                    {/* If you still see 429 on Google avatars, switch this <Image> to <img> */}
-                    <Image
+                    <img
                       src={testimonial.image}
                       alt={testimonial.name}
                       width={56}
                       height={56}
                       className="h-14 w-14 rounded-full object-cover"
                       loading="lazy"
-                      unoptimized
+                      referrerPolicy="no-referrer"
                     />
                     <div>
                       <div className="text-base font-semibold text-[color:var(--ink-900)]">
