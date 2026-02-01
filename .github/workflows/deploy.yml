@@ -5,7 +5,11 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *" # every 6 hours (optional, keeps reviews fresh)
+    - cron: "0 */6 * * *"
+
+concurrency:
+  group: deploy-namecheap
+  cancel-in-progress: true
 
 jobs:
   build-and-deploy:
@@ -47,6 +51,10 @@ jobs:
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
           GOOGLE_PLACE_ID: ${{ secrets.GOOGLE_PLACE_ID }}
         run: npm run build
+
+      - name: ✅ Verify export output exists
+        run: |
+          test -d out || (echo "::error::Missing out/ folder. Did you set output: \"export\" in next.config.js?" && exit 1)
 
       - name: 📄 Add .htaccess for SPA routing
         run: |
