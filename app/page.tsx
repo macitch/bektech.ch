@@ -4,6 +4,7 @@ import Collaboration from "./components/Collaboration";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
+import InstagramFeed from "./components/InstagramFeed";
 import Services from "./components/Services";
 import Testimonials from "./components/Testimonials";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <Services />
         <Collaboration />
         <Testimonials />
+        <InstagramFeed />
         <Contact />
       </main>
       <Footer />

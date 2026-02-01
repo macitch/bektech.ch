@@ -1,6 +1,7 @@
+import Image from "next/image";
+
 const stats = [
-  { value: "12+", label: "Ans d'expérience" },
-  { value: "260", label: "Projets réalisés" },
+  { value: "16+", label: "Ans d'expérience" },
   { value: "100%", label: "Finitions contrôlées" },
 ];
 
@@ -21,7 +22,7 @@ export default function About() {
             intervenons aussi sur la préparation, la démolition et la petite
             maçonnerie.
           </p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-3">
+          <div className="mt-10 grid gap-6 sm:grid-cols-2">
             {stats.map((stat) => (
               <div
                 key={stat.label}
@@ -38,11 +39,14 @@ export default function About() {
           </div>
         </div>
 
-        <div className="relative">
-          <img
-            src="https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1600&q=80"
+        <div className="relative h-[420px] w-full overflow-hidden rounded-3xl shadow-[0_16px_32px_rgba(0,0,0,0.12)]">
+          <Image
+            src="/image_2.jpg"
             alt="Pose de carrelage en cours"
-            className="relative h-[420px] w-full rounded-3xl object-cover shadow-[0_16px_32px_rgba(0,0,0,0.12)]"
+            fill
+            sizes="(min-width: 1024px) 45vw, 100vw"
+            className="object-cover"
+            loading="lazy"
           />
         </div>
       </div>

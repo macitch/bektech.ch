@@ -15,6 +15,16 @@
   --font-sans: var(--font-open-sans);
 }
 
+@keyframes partners-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

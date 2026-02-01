@@ -1,64 +1,46 @@
+import Image from "next/image";
+
 const services = [
   {
-    title: "Carrelage intérieur",
+    title: "Carrelage & mosaïque",
     description:
-      "Pose au sol ou mural avec alignements précis et joints réguliers.",
+      "Étanchéité, pose au sol ou mural, motifs sur-mesure et finitions précises.",
     details:
-      "Formats grands ou petits, coupes nettes et finitions durables.",
+      "Formats variés, coupes nettes et joints réguliers pour un rendu durable.",
     image:
-      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=1200&q=80",
+      "/carelagee.png",
   },
   {
-    title: "Revêtements muraux",
+    title: "Revêtements de sols",
     description:
-      "Solutions durables pour cuisines, salles de bain et zones techniques.",
+      "Solutions durables pour cuisines, et zones techniques.",
     details:
       "Préparation soignée et alignements précis pour un rendu uniforme.",
     image:
-      "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&w=1200&q=80",
+      "/image_1.jpg",
   },
   {
-    title: "Mosaïque décorative",
-    description:
-      "Motifs personnalisés pour donner du rythme et de la texture aux surfaces.",
-    details:
-      "Pose minutieuse pour douches, crédences ou bandes décoratives.",
-    image:
-      "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Démolition ciblée",
+    title: "Démolition & dépose",
     description:
       "Dépose propre et évacuation pour des rénovations rapides.",
     details:
       "Protection des zones sensibles et gestion des déblais.",
-    image:
-      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80",
+    image: "/demolition.jpeg",
   },
   {
-    title: "Préparation supports",
+    title: "Préparation & petite maçonnerie",
     description:
-      "Ragréage, étanchéité et renforts pour une pose parfaite.",
+      "Ragréage, étanchéité et reprises locales pour une pose parfaite.",
     details:
-      "Surfaces prêtes pour recevoir carrelage, pierre ou mosaïque.",
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80",
-  },
-  {
-    title: "Petite maçonnerie",
-    description:
-      "Reprises locales, seuils, marches et ajustements techniques.",
-    details:
-      "Corrections rapides pour garantir la stabilité des supports.",
-    image:
-      "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=1200&q=80",
+      "Surfaces stables, seuils et ajustements techniques maîtrisés.",
+    image: "/IMG_7430.jpg",
   },
 ];
 
 export default function Services() {
   return (
     <section id="services" className="scroll-mt-24 py-20 sm:py-24">
-      <div className="mx-auto w-full max-w-6xl px-6">
+      <div className="mx-auto w-full max-w-7xl px-6">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--accent-600)]">
@@ -78,18 +60,23 @@ export default function Services() {
 
         <div
           id="projets"
-          className="mt-12 grid scroll-mt-24 gap-8 md:grid-cols-2 lg:grid-cols-3"
+          className="mt-12 grid scroll-mt-24 gap-8 md:grid-cols-2"
         >
           {services.map((service) => (
             <article
               key={service.title}
               className="group relative overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1"
             >
-              <img
-                src={service.image}
-                alt={service.title}
-                className="h-72 w-full object-cover transition duration-500 group-hover:scale-105"
-              />
+              <div className="relative h-80 w-full">
+                <Image
+                  src={service.image}
+                  alt={service.title}
+                  fill
+                  sizes="(min-width: 768px) 50vw, 100vw"
+                  className="object-cover transition duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-90 transition group-hover:opacity-100" />
               <div className="absolute inset-x-0 bottom-0 p-6 text-white">
                 <h3 className="text-lg font-semibold">{service.title}</h3>

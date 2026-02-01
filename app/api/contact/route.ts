@@ -16,52 +16,72 @@ export async function POST(request: Request) {
     payload = (await request.json()) as ContactPayload;
   } catch {
     return NextResponse.json(
-      { error: "Invalid payload." },
+      { error: "Requête invalide." },
       { status: 400 }
     );
   }
 
   const { name, email, message } = payload;
+  const normalizedName = name.trim();
+  const normalizedEmail = email.trim();
+  const normalizedMessage = message.trim();
 
-  if (!name || !email || !message) {
+  if (!normalizedName || !normalizedEmail || !normalizedMessage) {
     return NextResponse.json(
-      { error: "Missing required fields." },
+      { error: "Champs requis manquants." },
       { status: 400 }
     );
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(normalizedEmail)) {
     return NextResponse.json(
-      { error: "Invalid email address." },
+      { error: "Adresse e-mail invalide." },
       { status: 400 }
     );
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_TO ?? "info@bektech.ch";
+  const from =
+    process.env.RESEND_FROM ?? "Bektech - Contact du site <info@bektech.ch>";
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: "Email service not configured." },
+      { error: "Service e-mail non configuré." },
       { status: 500 }
     );
   }
 
   const resend = new Resend(apiKey);
+  const isDev = process.env.NODE_ENV !== "production";
 
   try {
-    await resend.emails.send({
-      from: "Bektech Website <info@bektech.ch>",
+    const { error } = await resend.emails.send({
+      from,
       to,
-      reply_to: email,
-      subject: `Nouveau message - ${name}`,
-      text: `Nom: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      reply_to: `${normalizedName} <${normalizedEmail}>`,
+      subject: `Nouveau message - ${normalizedName}`,
+      text: `Nom: ${normalizedName}\nE-mail: ${normalizedEmail}\n\nMessage:\n${normalizedMessage}`,
+      html: `
+        <p><strong>Nom:</strong> ${normalizedName}</p>
+        <p><strong>E-mail:</strong> ${normalizedEmail}</p>
+        <p><strong>Message:</strong></p>
+        <p>${normalizedMessage.replace(/\n/g, "<br />")}</p>
+      `,
     });
+    if (error) {
+      console.error("Email send failed:", error);
+      const errorMessage = isDev ? error.message : "Échec de l’envoi de l’e-mail.";
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 502 }
+      );
+    }
   } catch (error) {
     console.error("Email send failed:", error);
     return NextResponse.json(
-      { error: "Failed to send email." },
+      { error: "Échec de l’envoi de l’e-mail." },
       { status: 500 }
     );
   }

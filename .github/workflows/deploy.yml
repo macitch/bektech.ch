@@ -4,6 +4,8 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *" # every 6 hours (optional, keeps reviews fresh)
 
 jobs:
   build-and-deploy:
@@ -16,35 +18,36 @@ jobs:
       - name: 🧰 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
-          cache: 'npm'
+          node-version: 20
+          cache: "npm"
 
-      # ---- Validate required FTP secrets ----
       - name: ✅ Validate required secrets
         env:
           FTP_HOST: ${{ secrets.FTP_HOST }}
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           FTP_TARGET_DIR: ${{ secrets.FTP_TARGET_DIR }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          GOOGLE_PLACE_ID: ${{ secrets.GOOGLE_PLACE_ID }}
         run: |
           missing=()
-          req=(FTP_HOST FTP_USERNAME FTP_PASSWORD FTP_TARGET_DIR)
+          req=(FTP_HOST FTP_USERNAME FTP_PASSWORD FTP_TARGET_DIR GOOGLE_MAPS_API_KEY GOOGLE_PLACE_ID)
           for v in "${req[@]}"; do [ -z "${!v}" ] && missing+=("$v"); done
           if [ ${#missing[@]} -gt 0 ]; then
             echo "::error::Missing secrets: ${missing[*]}"; exit 1
           else
-            echo "✅ FTP secrets present."
+            echo "✅ Required secrets present."
           fi
 
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🛠️ Build Next.js static site
+      - name: 🛠️ Build Next.js static site (with prefetch)
         env:
-          NEXT_PUBLIC_RESEND_API_KEY: ${{ secrets.NEXT_PUBLIC_RESEND_API_KEY }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          GOOGLE_PLACE_ID: ${{ secrets.GOOGLE_PLACE_ID }}
         run: npm run build
 
-      # ---- Add Apache SPA rewrite rules ----
       - name: 📄 Add .htaccess for SPA routing
         run: |
           cat > out/.htaccess << 'EOF'
@@ -62,7 +65,6 @@ jobs:
           </IfModule>
           EOF
 
-      # ---- Optional: build marker ----
       - name: 🏷️ Write build marker
         run: |
           {
@@ -71,14 +73,13 @@ jobs:
             echo "built_at=$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
           } > out/version.txt
 
-      # ---- Deploy via FTP ----
       - name: 🚀 Deploy to Namecheap via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_TARGET_DIR }}
           local-dir: out/
-          dangerous-clean-slate: true
-          log-level: verbose
+          dangerous-clean-slate: false
+          log-level: minimal

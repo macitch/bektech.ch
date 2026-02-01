@@ -1,28 +1,29 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 const slides = [
   {
     image:
-      "https://images.unsplash.com/photo-1501183638710-841dd1904471?auto=format&fit=crop&w=2000&q=80",
-    title: "Carrelage et revêtements pour des espaces impeccables",
+      "/bektech-image.png",
+    title: "Des surfaces nettes, durables et parfaitement alignées.",
     subtitle:
-      "Pose précise, finitions nettes et accompagnement local du début à la fin.",
+      "De la préparation au dernier joint, chaque détail est maîtrisé.",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=2000&q=80",
-    title: "Mosaïque, revêtements muraux et finitions de précision",
+      "/image_2.jpg",
+    title: "La précision au cœur de chaque surface",
     subtitle:
-      "Matériaux durables, lignes propres et détail soigné pour chaque pièce.",
+      "Carrelage, revêtements et finitions exécutés avec rigueur et cohérence.",
   },
   {
     image:
-      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?auto=format&fit=crop&w=2000&q=80",
+      "/image_3.jpg",
     title: "Préparation, démolition et petite maçonnerie",
     subtitle:
-      "Une base solide pour des rénovations durables, propres et rapides.",
+      "Une base solide pour des rénovations durables, propres.",
   },
 ];
 
@@ -30,6 +31,10 @@ export default function Hero() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mediaQuery.matches) {
+      return;
+    }
     const interval = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % slides.length);
     }, 6500);
@@ -43,12 +48,17 @@ export default function Hero() {
     >
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
-          <div
+          <Image
             key={slide.image}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[1200ms] ${
+            src={slide.image}
+            alt=""
+            fill
+            sizes="100vw"
+            priority={index === 0}
+            loading={index === 0 ? "eager" : "lazy"}
+            className={`object-cover transition-opacity duration-[1200ms] ${
               index === activeIndex ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ backgroundImage: `url(${slide.image})` }}
+            } motion-reduce:transition-none`}
           />
         ))}
       </div>
