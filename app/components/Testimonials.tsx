@@ -1,5 +1,7 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
+import { useI18n } from "../i18n/I18nProvider";
 
 type GoogleReview = {
   author_name: string;
@@ -17,43 +19,23 @@ type UiTestimonial = {
   image: string;
 };
 
-const fallbackTestimonials: UiTestimonial[] = [
-  {
-    name: "Claire M.",
-    role: "Salle de bain",
-    quote: "Pose précise et joints impeccables. Le rendu est propre et très soigné.",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Jules R.",
-    role: "Rénovation cuisine",
-    quote: "Organisation claire, délais respectés et finition uniforme.",
-    image:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Sophie B.",
-    role: "Sol commercial",
-    quote: "Une équipe fiable, des conseils utiles et un rendu durable.",
-    image:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
 export default function Testimonials() {
+  const { t } = useI18n();
   const [rawActiveIndex, setRawActiveIndex] = useState(0);
-  const [items, setItems] = useState<UiTestimonial[]>(fallbackTestimonials);
+  const [items, setItems] = useState<UiTestimonial[]>(t.testimonials.fallback);
   const [meta, setMeta] = useState<{ rating?: number; count?: number; url?: string }>({});
   const [hasLoadedGoogle, setHasLoadedGoogle] = useState(false);
 
-  // 1) Fetch static JSON generated at build time
+  useEffect(() => {
+    setItems(t.testimonials.fallback);
+    setRawActiveIndex(0);
+  }, [t]);
+
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
-        // cache-buster to avoid stale json in some browsers/CDNs
         const res = await fetch(`/data/google-reviews.json?v=${Date.now()}`, {
           cache: "no-store",
         });
@@ -63,19 +45,18 @@ export default function Testimonials() {
 
         if (!res.ok || !data || data?.error) {
           setHasLoadedGoogle(true);
-          return; // keep fallback
+          return;
         }
 
         const reviews: GoogleReview[] = Array.isArray(data?.reviews) ? data.reviews : [];
-
         const withText = reviews.filter((r) => (r.text || "").trim().length > 0);
 
         const mapped: UiTestimonial[] = (withText.length ? withText : reviews)
           .slice(0, 8)
           .map((r) => ({
-            name: r.author_name || "Client",
-            role: `Avis Google · ${r.rating ?? 5}★`,
-            quote: (r.text || "").trim() || "Très bon service.",
+            name: r.author_name || t.testimonials.anonymousName,
+            role: t.testimonials.googleReviewLabel(r.rating ?? 5),
+            quote: (r.text || "").trim() || t.testimonials.emptyGoogleQuote,
             image:
               r.profile_photo_url ||
               "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
@@ -91,7 +72,6 @@ export default function Testimonials() {
           count: data?.user_ratings_total,
           url: data?.url,
         });
-
         setHasLoadedGoogle(true);
       } catch {
         if (!cancelled) setHasLoadedGoogle(true);
@@ -101,9 +81,8 @@ export default function Testimonials() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [t]);
 
-  // 2) Auto-rotate
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mediaQuery.matches) return;
@@ -121,10 +100,10 @@ export default function Testimonials() {
 
   const subtitle = useMemo(() => {
     if (hasLoadedGoogle && meta.rating && meta.count) {
-      return `⭐ ${meta.rating}/5 — ${meta.count} avis sur Google.`;
+      return t.testimonials.googleSummary(meta.rating, meta.count);
     }
-    return "Des retours clairs sur la qualité de la pose, le respect des délais et la finition des travaux.";
-  }, [hasLoadedGoogle, meta.rating, meta.count]);
+    return t.testimonials.defaultSubtitle;
+  }, [hasLoadedGoogle, meta.rating, meta.count, t]);
 
   return (
     <section
@@ -135,13 +114,12 @@ export default function Testimonials() {
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <p className="text-xs uppercase tracking-[0.18em] text-[color:var(--accent-600)]">
-              Avis clients
+              {t.testimonials.kicker}
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[color:var(--ink-900)] sm:text-4xl">
-              Ce que disent nos clients
+              {t.testimonials.title}
             </h2>
             <p className="mt-4 text-sm leading-6 text-[color:var(--ink-700)]">{subtitle}</p>
-
             {meta.url && (
               <a
                 href={meta.url}
@@ -149,7 +127,7 @@ export default function Testimonials() {
                 rel="noreferrer"
                 className="mt-3 inline-flex text-sm underline underline-offset-4 text-[color:var(--ink-700)] hover:text-[color:var(--accent-600)]"
               >
-                Voir sur Google
+                {t.testimonials.viewOnGoogle}
               </a>
             )}
           </div>
@@ -158,7 +136,7 @@ export default function Testimonials() {
             <button
               type="button"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-black transition hover:border-[color:var(--accent-500)] hover:text-[color:var(--accent-500)]"
-              aria-label="Témoignage précédent"
+              aria-label={t.testimonials.previous}
               onClick={() => setRawActiveIndex((prev) => (prev === 0 ? total - 1 : prev - 1))}
               disabled={total <= 1}
             >
@@ -167,7 +145,7 @@ export default function Testimonials() {
             <button
               type="button"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-black transition hover:border-[color:var(--accent-500)] hover:text-[color:var(--accent-500)]"
-              aria-label="Témoignage suivant"
+              aria-label={t.testimonials.next}
               onClick={() => setRawActiveIndex((prev) => (prev + 1) % total)}
               disabled={total <= 1}
             >
@@ -221,7 +199,7 @@ export default function Testimonials() {
             <button
               key={`${testimonial.name}-${index}`}
               type="button"
-              aria-label={`Afficher l'avis ${index + 1}`}
+              aria-label={t.testimonials.dotLabel(index + 1)}
               className={`h-2.5 w-2.5 rounded-full transition ${
                 index === activeIndex
                   ? "bg-[color:var(--ink-900)]"

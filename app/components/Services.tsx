@@ -1,60 +1,28 @@
-import Image from "next/image";
+"use client";
 
-const services = [
-  {
-    title: "Carrelage & mosaïque",
-    description:
-      "Étanchéité, pose au sol ou mural, motifs sur-mesure et finitions précises.",
-    details:
-      "Formats variés, coupes nettes et joints réguliers pour un rendu durable.",
-    image:
-      "/carelagee.png",
-  },
-  {
-    title: "Revêtements de sols",
-    description:
-      "Solutions durables pour cuisines, et zones techniques.",
-    details:
-      "Préparation soignée et alignements précis pour un rendu uniforme.",
-    image:
-      "/image_1.jpg",
-  },
-  {
-    title: "Démolition & dépose",
-    description:
-      "Dépose propre et évacuation pour des rénovations rapides.",
-    details:
-      "Protection des zones sensibles et gestion des déblais.",
-    image: "/demolition.jpeg",
-  },
-  {
-    title: "Préparation & petite maçonnerie",
-    description:
-      "Ragréage, étanchéité et reprises locales pour une pose parfaite.",
-    details:
-      "Surfaces stables, seuils et ajustements techniques maîtrisés.",
-    image: "/IMG_7430.jpg",
-  },
-];
+import Image from "next/image";
+import { useI18n } from "../i18n/I18nProvider";
 
 export default function Services() {
+  const { t } = useI18n();
+
   return (
     <section id="services" className="scroll-mt-24 py-20 sm:py-24">
       <div className="mx-auto w-full max-w-7xl px-6">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--accent-600)]">
-              Nos services
+              {t.services.kicker}
             </p>
             <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[color:var(--ink-900)] sm:text-4xl">
-              Des solutions sur-mesure pour chaque projet
+              {t.services.title}
             </h2>
           </div>
           <a
             href="#contact"
             className="rounded-full border border-black px-6 py-2 text-xs uppercase tracking-[0.2em] text-black transition hover:bg-black hover:text-white"
           >
-            Discuter du projet
+            {t.services.cta}
           </a>
         </div>
 
@@ -62,7 +30,7 @@ export default function Services() {
           id="projets"
           className="mt-12 grid scroll-mt-24 gap-8 md:grid-cols-2"
         >
-          {services.map((service) => (
+          {t.services.items.map((service) => (
             <article
               key={service.title}
               className="group relative overflow-hidden rounded-3xl transition-transform duration-300 hover:-translate-y-1"

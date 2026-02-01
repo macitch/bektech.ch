@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useI18n } from "../i18n/I18nProvider";
 
 export default function Contact() {
+  const { t } = useI18n();
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle"
   );
@@ -16,7 +18,7 @@ export default function Contact() {
     const form = event.currentTarget;
 
     const formData = new FormData(form);
-    
+
     if (!formData.has("company")) formData.set("company", "");
 
     try {
@@ -31,7 +33,7 @@ export default function Contact() {
         const message =
           data && typeof data.error === "string" && data.error.trim()
             ? data.error
-            : "Échec de l’envoi. Veuillez réessayer.";
+            : t.contact.form.defaultSendError;
         throw new Error(message);
       }
 
@@ -48,27 +50,26 @@ export default function Contact() {
       <div className="mx-auto grid w-full max-w-6xl gap-12 px-6 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--accent-600)]">
-            Contact
+            {t.contact.kicker}
           </p>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[color:var(--ink-900)] sm:text-4xl">
-            Parlons de votre prochain chantier
+            {t.contact.title}
           </h2>
           <p className="mt-6 text-base leading-7 text-[color:var(--ink-700)]">
-            Devis gratuit, conseils sur les matériaux et planning adapté à vos
-            contraintes. Nous répondons sous 24 heures.
+            {t.contact.description}
           </p>
           <div className="mt-10 space-y-4 text-sm text-[color:var(--ink-700)]">
             <div className="flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-[color:var(--accent-500)]" />
-              Route du Vélodrome 60 1228 Plan-les-Ouates
+              {t.contact.address}
             </div>
             <div className="flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-[color:var(--accent-500)]" />
-              +41 79 925 22 27
+              {t.contact.phone}
             </div>
             <div className="flex items-center gap-3">
               <span className="h-2 w-2 rounded-full bg-[color:var(--accent-500)]" />
-              info@bektech.ch
+              {t.contact.email}
             </div>
           </div>
         </div>
@@ -78,7 +79,6 @@ export default function Contact() {
           onSubmit={handleSubmit}
           aria-busy={status === "sending"}
         >
-          {/* Honeypot: hidden field (bots often fill it) */}
           <input
             type="text"
             name="company"
@@ -90,35 +90,35 @@ export default function Contact() {
 
           <div className="grid gap-6">
             <label className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-700)]">
-              Nom complet
+              {t.contact.form.fullName}
               <input
                 type="text"
                 name="name"
                 required
                 className="mt-3 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-[color:var(--ink-900)] shadow-[0_10px_20px_rgba(0,0,0,0.08)] outline-none transition focus:border-[color:var(--accent-500)]"
-                placeholder="Votre nom"
+                placeholder={t.contact.form.placeholderName}
               />
             </label>
 
             <label className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-700)]">
-              E-mail
+              {t.contact.form.email}
               <input
                 type="email"
                 name="email"
                 required
                 className="mt-3 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-[color:var(--ink-900)] shadow-[0_10px_20px_rgba(0,0,0,0.08)] outline-none transition focus:border-[color:var(--accent-500)]"
-                placeholder="vous@email.ch"
+                placeholder={t.contact.form.placeholderEmail}
               />
             </label>
 
             <label className="text-xs uppercase tracking-[0.22em] text-[color:var(--ink-700)]">
-              Message
+              {t.contact.form.message}
               <textarea
                 name="message"
                 rows={5}
                 required
                 className="mt-3 w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-[color:var(--ink-900)] shadow-[0_10px_20px_rgba(0,0,0,0.08)] outline-none transition focus:border-[color:var(--accent-500)]"
-                placeholder="Décrivez votre projet..."
+                placeholder={t.contact.form.placeholderMessage}
               />
             </label>
 
@@ -127,20 +127,20 @@ export default function Contact() {
               className="rounded-full bg-[color:var(--ink-900)] px-8 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-white transition hover:bg-[color:var(--ink-700)] disabled:cursor-not-allowed disabled:opacity-70"
               disabled={status === "sending"}
             >
-              {status === "sending" ? "Envoi..." : "Envoyer la demande"}
+              {status === "sending" ? t.contact.form.sending : t.contact.form.submit}
             </button>
 
             <div aria-live="polite" aria-atomic="true" className="min-h-[24px]">
               {status === "success" && (
                 <p className="text-sm text-[color:var(--accent-600)]">
-                  Merci. Votre message a bien été envoyé.
+                  {t.contact.form.success}
                 </p>
               )}
               {status === "error" && (
                 <p className="text-sm text-red-600" role="alert">
                   {errorMessage
-                    ? `Une erreur est survenue : ${errorMessage}`
-                    : "Une erreur est survenue. Veuillez réessayer."}
+                    ? t.contact.form.errorWithMessage(errorMessage)
+                    : t.contact.form.errorGeneric}
                 </p>
               )}
             </div>

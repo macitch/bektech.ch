@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "./globals.css";
+import { I18nProvider } from "./i18n/I18nProvider";
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -24,7 +25,7 @@ export default function RootLayout({
       <body
         className={`${openSans.variable} bg-[color:var(--sand-50)] text-[color:var(--ink-900)] antialiased`}
       >
-        {children}
+        <I18nProvider>{children}</I18nProvider>
       </body>
     </html>
   );

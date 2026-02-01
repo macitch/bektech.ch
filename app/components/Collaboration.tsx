@@ -1,8 +1,15 @@
+"use client";
+
 import Image from "next/image";
+import { useI18n } from "../i18n/I18nProvider";
 
 const partners = [
   { name: "BNBOIS SA", logo: "/bnbois.png", url: "https://www.bnbois.ch" },
-  { name: "Teotherm SA", logo: "/teotherm.png",  url: "https://www.moneyhouse.ch/de/company/teotherm-sa-18737821971"},
+  {
+    name: "Teotherm SA",
+    logo: "/teotherm.png",
+    url: "https://www.moneyhouse.ch/de/company/teotherm-sa-18737821971",
+  },
 ];
 
 const suppliers = [
@@ -12,23 +19,23 @@ const suppliers = [
 ];
 
 export default function Collaboration() {
+  const { t } = useI18n();
+
   return (
     <section className="border-t border-black/10 bg-[color:var(--sand-50)] py-20 sm:py-24">
       <div className="mx-auto w-full max-w-6xl px-6">
-
         <div className="mt-12 space-y-10">
           <article className="rounded-[32px] from-[color:var(--sand-50)] via-white to-white p-6 sm:p-10">
             <header className="space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[color:var(--accent-600)]">
-                Partenaires
+                {t.collaboration.partnersKicker}
               </p>
               <div>
                 <h3 className="text-2xl font-semibold text-[color:var(--ink-900)]">
-                  Collaborations
+                  {t.collaboration.partnersTitle}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-[color:var(--ink-700)]">
-                  Les partenaires qui nous accompagnent sur les solutions bois et
-                  énergétiques pour vos réalisations les plus exigeantes.
+                  {t.collaboration.partnersDescription}
                 </p>
               </div>
             </header>
@@ -56,20 +63,19 @@ export default function Collaboration() {
                   </p>
                 </a>
               ))}
-            </div> 
+            </div>
           </article>
 
-          <article className="rounded-[32px] p-6  sm:p-8">
+          <article className="rounded-[32px] p-6 sm:p-8">
             <header className="space-y-3">
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[color:var(--accent-600)]">
-                Fournisseurs
+                {t.collaboration.suppliersKicker}
               </p>
               <h3 className="text-2xl font-semibold text-[color:var(--ink-900)]">
-                Qualité &amp; disponibilité
+                {t.collaboration.suppliersTitle}
               </h3>
               <p className="text-sm leading-6 text-[color:var(--ink-700)]">
-                Un réseau de fournisseurs fiables pour assurer les délais,
-                l’assurance qualité et les réponses techniques rapides.
+                {t.collaboration.suppliersDescription}
               </p>
             </header>
 
