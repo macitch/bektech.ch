@@ -19,7 +19,6 @@ type UiTestimonial = {
   image: string;
 };
 
-// Fallback si l’API n’est pas dispo (ou pas de commentaires texte)
 const fallbackTestimonials: UiTestimonial[] = [
   {
     name: "Claire M.",
@@ -50,25 +49,27 @@ export default function Testimonials() {
   const [meta, setMeta] = useState<{ rating?: number; count?: number; url?: string }>({});
   const [hasLoadedGoogle, setHasLoadedGoogle] = useState(false);
 
-  // 1) Fetch Google reviews
+  // 1) Fetch static JSON generated at build time
   useEffect(() => {
     let cancelled = false;
 
     (async () => {
       try {
-        const res = await fetch("/api/google-reviews");
-        const data = await res.json();
+        // cache-buster to avoid stale json in some browsers/CDNs
+        const res = await fetch(`/data/google-reviews.json?v=${Date.now()}`, {
+          cache: "no-store",
+        });
 
+        const data = await res.json().catch(() => null);
         if (cancelled) return;
 
-        if (!res.ok || data?.error) {
+        if (!res.ok || !data || data?.error) {
           setHasLoadedGoogle(true);
-          return; // on garde fallback
+          return; // keep fallback
         }
 
         const reviews: GoogleReview[] = Array.isArray(data?.reviews) ? data.reviews : [];
 
-        // On préfère des avis avec texte (sinon slider vide)
         const withText = reviews.filter((r) => (r.text || "").trim().length > 0);
 
         const mapped: UiTestimonial[] = (withText.length ? withText : reviews)
@@ -104,7 +105,7 @@ export default function Testimonials() {
     };
   }, []);
 
-  // 2) Auto-rotate (inchangé) — dépend maintenant de items.length
+  // 2) Auto-rotate
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mediaQuery.matches) return;
@@ -117,15 +118,10 @@ export default function Testimonials() {
     return () => clearInterval(interval);
   }, [items.length]);
 
-  // 3) Sécuriser activeIndex si items change
-  const activeIndex = items.length === 0
-    ? 0
-    : Math.min(rawActiveIndex, items.length - 1);
-
+  const activeIndex = items.length === 0 ? 0 : Math.min(rawActiveIndex, items.length - 1);
   const total = items.length;
 
   const subtitle = useMemo(() => {
-    // Si on a réussi à charger Google, on peut afficher une micro-preuve sociale
     if (hasLoadedGoogle && meta.rating && meta.count) {
       return `⭐ ${meta.rating}/5 — ${meta.count} avis sur Google.`;
     }
@@ -146,9 +142,7 @@ export default function Testimonials() {
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-[color:var(--ink-900)] sm:text-4xl">
               Ce que disent nos clients
             </h2>
-            <p className="mt-4 text-sm leading-6 text-[color:var(--ink-700)]">
-              {subtitle}
-            </p>
+            <p className="mt-4 text-sm leading-6 text-[color:var(--ink-700)]">{subtitle}</p>
 
             {meta.url && (
               <a
@@ -167,9 +161,7 @@ export default function Testimonials() {
               type="button"
               className="flex h-10 w-10 items-center justify-center rounded-full border border-black/10 text-black transition hover:border-[color:var(--accent-500)] hover:text-[color:var(--accent-500)]"
               aria-label="Témoignage précédent"
-              onClick={() =>
-                setRawActiveIndex((prev) => (prev === 0 ? total - 1 : prev - 1))
-              }
+              onClick={() => setRawActiveIndex((prev) => (prev === 0 ? total - 1 : prev - 1))}
               disabled={total <= 1}
             >
               <span aria-hidden="true">&lt;</span>
@@ -195,6 +187,7 @@ export default function Testimonials() {
               <article key={`${testimonial.name}-${testimonial.role}`} className="min-w-full px-2">
                 <div className="rounded-3xl border border-black/10 bg-white px-8 py-10 sm:px-12">
                   <div className="flex items-center gap-5">
+                    {/* If you still see 429 on Google avatars, switch this <Image> to <img> */}
                     <Image
                       src={testimonial.image}
                       alt={testimonial.name}
@@ -202,6 +195,7 @@ export default function Testimonials() {
                       height={56}
                       className="h-14 w-14 rounded-full object-cover"
                       loading="lazy"
+                      unoptimized
                     />
                     <div>
                       <div className="text-base font-semibold text-[color:var(--ink-900)]">
@@ -212,6 +206,7 @@ export default function Testimonials() {
                       </div>
                     </div>
                   </div>
+
                   <div className="mt-6 flex items-start gap-3">
                     <span className="mt-1 h-6 w-1 rounded-full bg-[color:var(--accent-500)]" />
                     <p className="text-base leading-7 text-[color:var(--ink-700)]">

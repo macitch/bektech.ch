@@ -1,14 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "export",
+
   images: {
+    unoptimized: true,
     remotePatterns: [
-      // Unsplash (you already use it)
+      // Unsplash
       {
         protocol: "https",
         hostname: "images.unsplash.com",
       },
 
-      // Google profile photos (Reviews avatars)
+      // Google profile photos (reviews avatars)
       {
         protocol: "https",
         hostname: "lh3.googleusercontent.com",

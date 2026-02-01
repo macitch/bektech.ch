@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "prefetch:reviews": "node scripts/fetch-google-reviews.mjs",
+    "build": "npm run prefetch:reviews && next build",
     "start": "next start -p $PORT"
   },
   "dependencies": {
